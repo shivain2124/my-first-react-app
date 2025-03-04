@@ -1,6 +1,7 @@
 import React from "react"
 import Search from './components/search'
 import {useEffect, useState} from 'react'
+import Spinner from "./components/Spinner";
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -69,10 +70,23 @@ const App=()=> {
       <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
       </header>
 
-      <section className="all-movies">
-        <h2>All Movies</h2>
+      <section className="all-movies flex justify-center items-center flex-col">
+        <h2 className="text-2xl font-bold mt-[3.5vh]">All Movies</h2>
+        {/* {errorMessage && <p className="error-message">{errorMessage}</p>}*/}
+        {/* text-2xl font-bold text-white mb-4 */}
+        {isLoading ? (
+          // <p className="text-white">Loading...</p>
+          <Spinner/> 
+        ): errorMessage ? (
+          <p className="text-red-500">{errorMessage}</p>
+        ) : (
+          <ul>
+            {movieList.map((movie) => (
+              <p key={movie.id}  className="text-white">{movie.title}</p>
+            ))}
+          </ul>
+        )}
 
-        {errorMessage && <p className="error-message">{errorMessage}</p>}        
       </section>
       {/* <h1 className="text-white">{searchTerm}</h1> */}
 
