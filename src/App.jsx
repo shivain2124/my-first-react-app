@@ -3,6 +3,9 @@ import Search from './components/search'
 import {useEffect, useState} from 'react'
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
+import { useDebounce } from "react-use";  
+import { updateSearchCount } from "./appwrite.js";
+
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -20,6 +23,10 @@ const App=()=> {
   const [errorMessage, setErrorMessage] = useState('');
   const [movieList, setmovieList] = useState([]);
   const [isLoading, setisLoading] = useState(false);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  //debounce for .5 second
+  useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
 
 
   const fetchMovies = async (query='') => {
@@ -43,8 +50,13 @@ const App=()=> {
           setErrorMessage(data.Error || 'Failed to fetch movies');
           setmovieList([]);
           return;
-        }
+        } 
         setmovieList(data.results || []);
+
+        if(query && data.results.length>0){
+          await updateSearchCount(query,data.results[0]);
+        }
+
       } catch(error){
         console.error(`Error fetching movies: ${error}`);
         setErrorMessage('Error fetching movies Yo Yo Yo try nexxt time Yo Yo Yo');
@@ -54,9 +66,9 @@ const App=()=> {
   }
 
   useEffect(() => {
-    fetchMovies(searchTerm);
+    fetchMovies(debouncedSearchTerm);
 
-  },[searchTerm]);
+  },[debouncedSearchTerm]);
 
   return (
     <main>
